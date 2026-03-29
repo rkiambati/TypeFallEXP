@@ -215,13 +215,22 @@ public class GameSession {
         if (screenClearCharges <= 0) return false;
 
         screenClearCharges--;
+
         for (int i = activeTargets.size() - 1; i >= 0; i--) {
             TypingTarget target = activeTargets.get(i);
-            if (target instanceof StandardEnemy) {
+
+            if (target instanceof StandardEnemy enemy) {
                 typingEngine.clearFocusIfTargetRemoved(target);
                 activeTargets.remove(i);
+
+                // Count the removal so the boss wave can still progress
+                processEnemyRemoval();
+
+                // Optional: award points for enemies cleared by the power-up
+                currentScore += enemy.getPointsAwardedOnDefeat();
             }
         }
+
         return true;
     }
 
