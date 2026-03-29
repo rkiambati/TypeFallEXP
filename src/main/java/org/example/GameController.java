@@ -11,6 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -19,9 +20,10 @@ import javafx.util.Duration;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.Queue;
 
 public class GameController {
 
@@ -37,6 +39,7 @@ public class GameController {
     private long lastFrameTime = 0L;
 
     private final Map<TypingTarget, TargetView> visualElements = new HashMap<>();
+    private final Queue<TargetView> targetViewPool = new LinkedList<>();
 
     private ImageView playerShip;
     private TypingTarget activeTarget = null;
@@ -59,6 +62,12 @@ public class GameController {
         bossImageCache = loadImage("/boss.png");
 
         setupLaser();
+
+        // Prevent layout thrashing when enemies fall off screen
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(gamePane.widthProperty());
+        clip.heightProperty().bind(gamePane.heightProperty());
+        gamePane.setClip(clip);
 
         gameSession = new GameSession(1);
         setupPlayerShip();
@@ -199,12 +208,14 @@ public class GameController {
     }
 
     private void syncVisuals() {
-        Set<TypingTarget> fastLookupSet = new HashSet<>(gameSession.getActiveTargets());
+        List<TypingTarget> currentTargets = gameSession.getActiveTargets();
 
-        for (TypingTarget target : gameSession.getActiveTargets()) {
-            TargetView view = visualElements.computeIfAbsent(target, this::createTargetView);
-            view.container.setLayoutX(target.getX());
-            view.container.setLayoutY(target.getY());
+        for (TypingTarget target : currentTargets) {
+            TargetView view = visualElements.computeIfAbsent(target, this::getOrCreateTargetView);
+
+            // Bypass layout engine, translate directly on GPU
+            view.container.setTranslateX(target.getX());
+            view.container.setTranslateY(target.getY());
 
             if (target.getTypedCharacterIndex() > 0) {
                 if (target == activeTarget && target.getTypedCharacterIndex() > lastTypedIndex) {
@@ -224,8 +235,10 @@ public class GameController {
             TypingTarget target = entry.getKey();
             TargetView view = entry.getValue();
 
-            if (!fastLookupSet.contains(target)) {
+            if (!currentTargets.contains(target)) {
                 gamePane.getChildren().remove(view.container);
+                targetViewPool.offer(view);
+
                 if (target == activeTarget) {
                     activeTarget = null;
                     lastTypedIndex = 0;
@@ -236,25 +249,30 @@ public class GameController {
         });
     }
 
-    private TargetView createTargetView(TypingTarget target) {
-        VBox container = new VBox();
-        container.setAlignment(Pos.CENTER);
-        container.setSpacing(4);
+    private TargetView getOrCreateTargetView(TypingTarget target) {
+        TargetView view = targetViewPool.poll();
+
+        if (view == null) {
+            VBox container = new VBox();
+            container.setAlignment(Pos.CENTER);
+            container.setSpacing(4);
+
+            Text typedText = new Text();
+            Text remainingText = new Text();
+            TextFlow textFlow = new TextFlow(typedText, remainingText);
+            textFlow.setTextAlignment(TextAlignment.CENTER);
+
+            container.getChildren().addAll(new Rectangle(), textFlow);
+            view = new TargetView(container, typedText, remainingText);
+        }
 
         Node headerNode = createVisualNodeForTarget(target);
+        view.container.getChildren().set(0, headerNode);
 
-        Text typedText = new Text();
-        Text remainingText = new Text();
-        TextFlow textFlow = new TextFlow(typedText, remainingText);
-        textFlow.setTextAlignment(TextAlignment.CENTER);
-
-        styleTextForTarget(target, typedText, remainingText);
-
-        container.getChildren().addAll(headerNode, textFlow);
-        gamePane.getChildren().add(container);
-
-        TargetView view = new TargetView(container, typedText, remainingText);
+        styleTextForTarget(target, view.typedText, view.remainingText);
         updateTargetText(view, target);
+
+        gamePane.getChildren().add(view.container);
         return view;
     }
 

@@ -30,7 +30,4 @@
    <center>
       <AnchorPane fx:id="gamePane" prefHeight="571.0" prefWidth="1278.0" BorderPane.alignment="CENTER" />
    </center>
-   <bottom>
-      <AnchorPane prefHeight="137.0" prefWidth="1278.0" BorderPane.alignment="CENTER" />
-   </bottom>
 </BorderPane>

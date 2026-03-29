@@ -6,12 +6,12 @@ import java.util.Random;
 
 public class GameSession {
 
-    public static final int DEFAULT_MAXIMUM_HEARTS = 5;
+    public static final int DEFAULT_MAXIMUM_HEARTS = 100;
 
     private static final double STANDARD_ENEMY_SPAWN_INTERVAL = 2.0;
     private static final double POWER_UP_SPAWN_INTERVAL = 12.0;
     private static final double BOSS_INTERVAL_SECONDS = 30.0;
-    private static final double PLAYFIELD_HEIGHT = 400;
+    private static final double PLAYFIELD_HEIGHT = 700;
 
     private int currentScore;
     private int currentHealth;
