@@ -11,7 +11,8 @@ public class GameSession {
     private static final double STANDARD_ENEMY_SPAWN_INTERVAL = 2.0;
     private static final double POWER_UP_SPAWN_INTERVAL = 12.0;
     private static final double BOSS_INTERVAL_SECONDS = 30.0;
-    private static final double PLAYFIELD_HEIGHT = 400;
+    private double playfieldHeight = 500.0;
+    private static final double DESPAWN_MARGIN = 20.0;
 
     private int currentScore;
     private int currentHealth;
@@ -116,7 +117,7 @@ public class GameSession {
                 if (!(target instanceof BossEnemy)) {
                     fallingEntity.moveDown(deltaTimeSeconds);
 
-                    if (fallingEntity.hasReachedBottom(PLAYFIELD_HEIGHT)) {
+                    if (fallingEntity.hasReachedBottom(playfieldHeight)) {
                         if (target instanceof Enemy enemy) {
                             currentHealth -= enemy.getDamageToPlayerHearts();
                         }

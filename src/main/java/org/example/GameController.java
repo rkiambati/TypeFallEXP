@@ -32,6 +32,8 @@ public class GameController {
     @FXML private Text powerupText;
     @FXML private Text statusText;
 
+    private double debugPrintTimer = 0.0;
+
     private GameSession gameSession;
     private MainGameLoop gameLoop;
     private long lastFrameTime = 0L;
@@ -137,9 +139,35 @@ public class GameController {
         double deltaTime = (now - lastFrameTime) / 1_000_000_000.0;
         lastFrameTime = now;
 
+        if (deltaTime > 0.025) {
+            System.out.println(String.format("PULSE STALL deltaTime=%.2fms", deltaTime * 1000.0));
+        }
+
+        long t1 = System.nanoTime();
         gameSession.update(deltaTime);
+        long t2 = System.nanoTime();
+
         updateHud();
+        long t3 = System.nanoTime();
+
         syncVisuals();
+        long t4 = System.nanoTime();
+
+        debugCounts(deltaTime);
+
+        double updateMs = (t2 - t1) / 1_000_000.0;
+        double hudMs = (t3 - t2) / 1_000_000.0;
+        double visualsMs = (t4 - t3) / 1_000_000.0;
+        double totalMs = (t4 - t1) / 1_000_000.0;
+
+        if (deltaTime > 0.025 || totalMs > 8.0) {
+            System.out.println(
+                    String.format(
+                            "PULSE delta=%.2fms total=%.2fms update=%.2fms hud=%.2fms visuals=%.2fms",
+                            deltaTime * 1000.0, totalMs, updateMs, hudMs, visualsMs
+                    )
+            );
+        }
 
         if (laserFramesRemaining > 0) {
             laserFramesRemaining--;
@@ -360,6 +388,20 @@ public class GameController {
             this.container = container;
             this.typedText = typedText;
             this.remainingText = remainingText;
+        }
+    }
+
+    private void debugCounts(double deltaTime) {
+        debugPrintTimer += deltaTime;
+
+        if (debugPrintTimer >= 0.5) {
+            debugPrintTimer = 0.0;
+
+            System.out.println(
+                    "logic=" + gameSession.getActiveTargets().size()
+                            + " visuals=" + visualElements.size()
+                            + " children=" + gamePane.getChildren().size()
+            );
         }
     }
 
