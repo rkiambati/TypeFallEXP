@@ -1,10 +1,9 @@
 package org.example;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
- * Handles target locking and typing logic.
+ * Handles target locking, auto-switching, and typing logic.
  */
 public class TypingEngine {
 
@@ -15,24 +14,75 @@ public class TypingEngine {
     }
 
     public TypingResult processTypedCharacter(char typedCharacter, List<TypingTarget> activeTargets, RunStatistics stats) {
-        char normalizedCharacter = Character.toLowerCase(typedCharacter);
+        char normalizedChar = Character.toLowerCase(typedCharacter);
 
-        if (currentTypingTarget == null) {
-            return findAndLockNewTarget(normalizedCharacter, activeTargets, stats);
+        // Scenario 1: We are already locked onto a target
+        if (currentTypingTarget != null) {
+            String word = currentTypingTarget.getTargetWord();
+            int index = currentTypingTarget.getTypedCharacterIndex();
+
+            if (index < word.length() && Character.toLowerCase(word.charAt(index)) == normalizedChar) {
+                // The character matches the next letter of the locked word
+                currentTypingTarget.onCorrectCharacterTyped(index + 1);
+                if (stats != null) stats.recordCorrectCharacterTyped();
+
+                if (currentTypingTarget.isTypedComplete()) {
+                    currentTypingTarget.markAsResolved();
+                    currentTypingTarget = null;
+                    return TypingResult.TARGET_COMPLETED;
+                }
+                return TypingResult.CORRECT_PROGRESS;
+            } else {
+                // The character is WRONG for the current word.
+                // Let's check if the player is trying to auto-switch to a new word.
+                TypingTarget newTarget = findBestNewTarget(normalizedChar, activeTargets, currentTypingTarget);
+
+                if (newTarget != null) {
+                    // Successful auto-switch! Reset the old target and lock the new one.
+                    currentTypingTarget.onCorrectCharacterTyped(0);
+                    currentTypingTarget = newTarget;
+                    currentTypingTarget.onCorrectCharacterTyped(1);
+
+                    if (stats != null) stats.recordCorrectCharacterTyped();
+                    return TypingResult.CORRECT_PROGRESS;
+                } else {
+                    // It is just a normal typo. Record the mistake, but DO NOT drop the lock.
+                    // This allows the player to keep typing the word without starting over.
+                    if (stats != null) stats.recordIncorrectCharacterTyped();
+                    return TypingResult.INCORRECT;
+                }
+            }
         }
 
-        return processLockedTarget(normalizedCharacter, stats);
+        // Scenario 2: We are NOT locked, try to find a new target
+        TypingTarget newTarget = findBestNewTarget(normalizedChar, activeTargets, null);
+
+        if (newTarget != null) {
+            currentTypingTarget = newTarget;
+            currentTypingTarget.onCorrectCharacterTyped(1);
+            if (stats != null) stats.recordCorrectCharacterTyped();
+
+            if (currentTypingTarget.isTypedComplete()) {
+                currentTypingTarget.markAsResolved();
+                currentTypingTarget = null;
+                return TypingResult.TARGET_COMPLETED;
+            }
+            return TypingResult.CORRECT_PROGRESS;
+        }
+
+        // No match found at all
+        if (stats != null) stats.recordIncorrectCharacterTyped();
+        return TypingResult.NO_MATCH;
     }
 
-    private TypingResult findAndLockNewTarget(char typedChar, List<TypingTarget> activeTargets, RunStatistics stats) {
+    private TypingTarget findBestNewTarget(char firstChar, List<TypingTarget> activeTargets, TypingTarget excludeTarget) {
         TypingTarget bestMatch = null;
         double lowestY = -1.0;
 
         for (TypingTarget target : activeTargets) {
-            if (target.isTargetActive() && !target.getTargetWord().isEmpty()) {
-                char firstChar = Character.toLowerCase(target.getTargetWord().charAt(0));
-                if (firstChar == typedChar) {
-                    // Find the target closest to the bottom (highest Y value)
+            if (target != excludeTarget && target.isTargetActive() && !target.getTargetWord().isEmpty()) {
+                if (Character.toLowerCase(target.getTargetWord().charAt(0)) == firstChar) {
+                    // Prioritize targets closest to the bottom of the screen
                     if (bestMatch == null || target.getY() > lowestY) {
                         bestMatch = target;
                         lowestY = target.getY();
@@ -40,67 +90,7 @@ public class TypingEngine {
                 }
             }
         }
-
-        if (bestMatch == null) {
-            if (stats != null) {
-                stats.recordIncorrectCharacterTyped();
-            }
-            return TypingResult.NO_MATCH;
-        }
-
-        currentTypingTarget = bestMatch;
-        currentTypingTarget.onCorrectCharacterTyped(1);
-
-        if (stats != null) {
-            stats.recordCorrectCharacterTyped();
-        }
-
-        if (currentTypingTarget.isTypedComplete()) {
-            currentTypingTarget.markAsResolved();
-            currentTypingTarget = null;
-            return TypingResult.TARGET_COMPLETED;
-        }
-
-        return TypingResult.CORRECT_PROGRESS;
-    }
-
-    private TypingResult processLockedTarget(char typedChar, RunStatistics stats) {
-        String word = currentTypingTarget.getTargetWord();
-        int index = currentTypingTarget.getTypedCharacterIndex();
-
-        if (index >= word.length()) {
-            currentTypingTarget.markAsResolved();
-            currentTypingTarget = null;
-            return TypingResult.TARGET_COMPLETED;
-        }
-
-        char expectedChar = Character.toLowerCase(word.charAt(index));
-
-        if (expectedChar != typedChar) {
-            if (stats != null) {
-                stats.recordIncorrectCharacterTyped();
-            }
-            // Reset the target's typing progress back to 0
-            currentTypingTarget.onCorrectCharacterTyped(0);
-            // Break the lock so the player can target something else
-            currentTypingTarget = null;
-
-            return TypingResult.INCORRECT;
-        }
-
-        currentTypingTarget.onCorrectCharacterTyped(index + 1);
-
-        if (stats != null) {
-            stats.recordCorrectCharacterTyped();
-        }
-
-        if (currentTypingTarget.isTypedComplete()) {
-            currentTypingTarget.markAsResolved();
-            currentTypingTarget = null;
-            return TypingResult.TARGET_COMPLETED;
-        }
-
-        return TypingResult.CORRECT_PROGRESS;
+        return bestMatch;
     }
 
     public void abandonCurrentTarget() {

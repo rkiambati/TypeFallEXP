@@ -38,8 +38,9 @@ public class Main extends Application {
         scene.setOnKeyTyped(event -> {
             String input = event.getCharacter();
 
-            // Ignore spaces here so they don't count as wrong letters
-            if (input == null || input.isEmpty() || " ".equals(input)) {
+            // The Fix: Ignore empty strings AND control characters (like Backspace \b or Escape)
+            // ASCII values of 32 (Space) and under are non-printable or spaces.
+            if (input == null || input.isEmpty() || input.charAt(0) <= 32) {
                 return;
             }
 
