@@ -1,4 +1,4 @@
-package org.example;
+package org.example.controller;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
@@ -17,22 +17,39 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import org.example.*;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
+
+import javafx.animation.Interpolator;
+import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.util.Duration;
+import org.example.Account;
+import org.example.AccountManager;
+import org.example.SceneManager;
+import org.example.SessionManager;
+
 
 public class GameController {
 
+    @FXML
+    private Pane backgroundPane;
     @FXML private AnchorPane gamePane;
     @FXML private Text scoreText;
     @FXML private Text healthText;
     @FXML private Text levelText;
     @FXML private Text powerupText;
     @FXML private Text statusText;
+
+    private final Random random = new Random();
+
 
     private GameSession gameSession;
     private MainGameLoop gameLoop;
@@ -56,8 +73,56 @@ public class GameController {
     private String lastDisplayedPowerUp = "";
     private String lastDisplayedStatus = "";
 
+
+    private void spawnAsteroid() {
+        // Create the Asteroid using a Circle placeholder
+        Circle asteroid = new Circle();
+
+        // Randomize size between 2 and 6 radius
+        asteroid.setRadius(random.nextDouble() * 4 + 2);
+        asteroid.setFill(Color.web("#FFEE8C"));
+        asteroid.setOpacity(random.nextDouble() * 0.5 + 0.3);
+
+        // Set Starting Position:
+        // Random X across the 1280px width, Y just off-screen at the bottom (e.g., 750)
+        double startX = random.nextDouble() * 1280;
+        asteroid.setTranslateX(startX);
+        asteroid.setTranslateY(750); // Starts below the screen
+
+        // Add to the background pane and push to the very back
+        backgroundPane.getChildren().add(asteroid);
+        asteroid.toBack();
+
+        // Create the Animation
+        double durationSeconds = random.nextDouble() * 25 + 15; // 15 to 40 seconds
+        TranslateTransition transition = new TranslateTransition(Duration.seconds(durationSeconds), asteroid);
+
+        // Move it UP across the screen.
+        // Moving from Y=750 to Y=-50 requires a change of -800 pixels.
+        transition.setByY(-800);
+
+        // Ensure we don't move it on the X axis anymore
+        transition.setByX(0);
+
+        // delay between each asteroid
+        transition.setDelay(Duration.seconds(random.nextDouble() * 30));
+
+
+        transition.setInterpolator(Interpolator.LINEAR);
+        transition.setCycleCount(TranslateTransition.INDEFINITE);
+
+        // Start the movement
+        transition.play();
+    }
+
+
     @FXML
     public void initialize() {
+        // Spawn 100 asteroids when the login screen loads
+        for (int i = 0; i < 150; i++) {
+            spawnAsteroid();
+        }
+
         enemyImageCache = loadImage("/enemy.png");
         bossImageCache = loadImage("/boss.png");
 
@@ -78,17 +143,14 @@ public class GameController {
 
     private void setupPlayerShip() {
         Image playerImage = loadImage("/player.png");
-        if (playerImage != null) {
-            playerShip = new ImageView(playerImage);
-            playerShip.setFitWidth(100);
-            playerShip.setPreserveRatio(true);
-        } else {
-            playerShip = new ImageView();
-            playerShip.setFitWidth(100);
-        }
+        playerShip = new ImageView(playerImage);
+        playerShip.setFitWidth(150);
+        playerShip.setPreserveRatio(true);
 
-        playerShip.setLayoutX(590);
-        playerShip.setLayoutY(540);
+
+        // Use these instead:
+        playerShip.setTranslateX(580);
+        playerShip.setTranslateY(500);
         gamePane.getChildren().add(playerShip);
         playerShip.toFront();
     }
@@ -185,8 +247,8 @@ public class GameController {
             levelText.setText("Level: " + lastDisplayedLevel);
         }
 
-        String currentPowerUpText = "1 Screen Clear x" + gameSession.getScreenClearCharges() +
-                "   2 Heal (+10) x" + gameSession.getHealCharges();
+        String currentPowerUpText = "1: Screen Clear x" + gameSession.getScreenClearCharges() +
+                "   2: Heal (+10) x" + gameSession.getHealCharges();
         if (!currentPowerUpText.equals(lastDisplayedPowerUp)) {
             lastDisplayedPowerUp = currentPowerUpText;
             powerupText.setText(currentPowerUpText);
@@ -300,7 +362,7 @@ public class GameController {
 
         if (enemyImageCache != null) {
             ImageView imageView = new ImageView(enemyImageCache);
-            imageView.setFitWidth(80);
+            imageView.setFitWidth(100);
             imageView.setPreserveRatio(true);
             return imageView;
         }
@@ -352,8 +414,11 @@ public class GameController {
     }
 
     private void fireLaser(double targetX, double targetY) {
-        playerLaser.setStartX(playerShip.getLayoutX() + (playerShip.getFitWidth() / 2));
-        playerLaser.setStartY(playerShip.getLayoutY());
+        // Get the translate coordinates to match where the ship actually is
+        playerLaser.setStartX(playerShip.getTranslateX() + (playerShip.getFitWidth() / 2));
+        playerLaser.setStartY(playerShip.getTranslateY());
+
+        // The target coordinates are also using translate now!
         playerLaser.setEndX(targetX + 20);
         playerLaser.setEndY(targetY + 20);
         playerLaser.setVisible(true);

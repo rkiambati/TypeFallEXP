@@ -11,7 +11,7 @@ public class GameSession {
     private static final double STANDARD_ENEMY_SPAWN_INTERVAL = 2.0;
     private static final double POWER_UP_SPAWN_INTERVAL = 12.0;
     private static final double BOSS_INTERVAL_SECONDS = 30.0;
-    private static final double PLAYFIELD_HEIGHT = 700;
+    private static final double PLAYFIELD_HEIGHT = 540;
 
     private int currentScore;
     private int currentHealth;
