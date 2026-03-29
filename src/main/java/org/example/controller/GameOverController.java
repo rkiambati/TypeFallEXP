@@ -10,7 +10,7 @@ public class GameOverController {
     private void handleRetry(ActionEvent event) {
         SceneManager.switchScene(
                 event,
-                "/org/example/ui/fxml/gameplay.fxml",
+                "/org/example/fxml/gameplay.fxml",
                 "TypeFall - Gameplay"
         );
     }
@@ -19,7 +19,7 @@ public class GameOverController {
     private void handleMainMenu(ActionEvent event) {
         SceneManager.switchScene(
                 event,
-                "/org/example/ui/fxml/main-page-view.fxml",
+                "/org/example/fxml/main-page-view.fxml",
                 "TypeFall - Main Menu"
         );
     }

@@ -13,6 +13,16 @@ import java.net.URL;
 public class SceneManager {
 
     public static void switchScene(ActionEvent event, String fxmlPath, String title) {
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        switchScene(stage, fxmlPath, title);
+    }
+
+    public static void switchScene(Node sourceNode, String fxmlPath, String title) {
+        Stage stage = (Stage) sourceNode.getScene().getWindow();
+        switchScene(stage, fxmlPath, title);
+    }
+
+    public static void switchScene(Stage stage, String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
             Parent root = loader.load();
@@ -24,7 +34,6 @@ public class SceneManager {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             }
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setTitle(title);
             stage.setScene(scene);
             stage.sizeToScene();

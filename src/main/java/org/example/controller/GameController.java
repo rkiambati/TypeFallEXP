@@ -36,6 +36,15 @@ import org.example.AccountManager;
 import org.example.SceneManager;
 import org.example.SessionManager;
 
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 
 public class GameController {
 
@@ -74,6 +83,8 @@ public class GameController {
     private String lastDisplayedStatus = "";
 
     private boolean wasBossActive = false; // Add this line
+
+    private boolean switchingScreens = false;
 
 
     private void spawnAsteroid() {
@@ -120,7 +131,7 @@ public class GameController {
 
     @FXML
     public void initialize() {
-        // Spawn 100 asteroids when the login screen loads
+        // Spawn background asteroids
         for (int i = 0; i < 150; i++) {
             spawnAsteroid();
         }
@@ -129,15 +140,26 @@ public class GameController {
 
         setupLaser();
 
-        // Prevent layout thrashing when enemies fall off screen
+        // Prevent layout thrashing when things leave the visible area
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(gamePane.widthProperty());
         clip.heightProperty().bind(gamePane.heightProperty());
         gamePane.setClip(clip);
 
         gameSession = new GameSession(1);
+
         setupPlayerShip();
         showLevelStartAnimation("Type the enemy words before they hit you");
+
+        // Make sure gameplay scene always re-registers keys
+        gamePane.setFocusTraversable(true);
+        gamePane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                installSceneKeyHandlers(newScene);
+                Platform.runLater(gamePane::requestFocus);
+            }
+        });
+
         gameLoop = new MainGameLoop();
         gameLoop.start();
     }
@@ -228,9 +250,12 @@ public class GameController {
             }
         }
 
-        if (gameSession.isGameOver()) {
+        if (gameSession.isGameOver() && !switchingScreens) {
+            switchingScreens = true;
             gameLoop.stop();
-            showStatusFlash("Game Over");
+
+            Platform.runLater(this::openGameOverScreen);
+            return;
         }
 
         if (gameSession.isLevelCleared()) {
@@ -443,6 +468,60 @@ public class GameController {
             this.container = container;
             this.typedText = typedText;
             this.remainingText = remainingText;
+        }
+    }
+
+    private void installSceneKeyHandlers(Scene scene) {
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DIGIT1) {
+                usePowerUpSlot(1);
+                event.consume();
+            } else if (event.getCode() == KeyCode.DIGIT2) {
+                usePowerUpSlot(2);
+                event.consume();
+            } else if (event.getCode() == KeyCode.SPACE
+                    || event.getCode() == KeyCode.BACK_SPACE
+                    || event.getCode() == KeyCode.ESCAPE) {
+                cancelCurrentTarget();
+                event.consume();
+            }
+        });
+
+        scene.setOnKeyTyped(event -> {
+            String input = event.getCharacter();
+
+            if (input == null || input.isEmpty() || input.charAt(0) <= 32) {
+                return;
+            }
+
+            if ("1".equals(input) || "2".equals(input)) {
+                return;
+            }
+
+            handleKeyPress(input.charAt(0));
+        });
+    }
+
+    @FXML
+    private void handleExitBtn(ActionEvent event) {
+        SceneManager.switchScene(event, "/org/example/fxml/main-page-view.fxml", "TypeFall - Main Menu");
+    }
+
+    private void openGameOverScreen() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/fxml/game-over.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) gamePane.getScene().getWindow();
+            Scene scene = new Scene(root);
+
+            stage.setTitle("Game Over");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

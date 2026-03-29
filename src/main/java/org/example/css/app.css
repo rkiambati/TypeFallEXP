@@ -7,7 +7,7 @@
 
 /* --- 1. Base Button Styling (Transparent & Rounded) --- */
 .play-game-button, .high-score-button, .tutorial-button, .parental-control-button, .logout-button,
-.pt-nav-button, .pt-admin-button, .pt-gated-button, .retry-button {
+.pt-nav-button, .pt-admin-button, .pt-gated-button, .retry-button, .exit-btn-gameplay {
     -fx-background-color: transparent;
     -fx-border-width: 2px;
     -fx-border-radius: 10px;
@@ -17,12 +17,12 @@
 
 /* --- 2. Primary Cyan Buttons --- */
 /* (Main Menu, Account Management, Select Player) */
-.play-game-button, .high-score-button, .parental-control-button, .pt-admin-button, .pt-gated-button {
+.play-game-button, .high-score-button, .parental-control-button, .pt-admin-button, .pt-gated-button, .exit-btn-gameplay {
     -fx-border-color: #13ADED;
     -fx-text-fill: #13ADED;
 }
 
-.play-game-button:hover, .high-score-button:hover, .parental-control-button:hover, .pt-admin-button:hover, .pt-gated-button:hover {
+.play-game-button:hover, .high-score-button:hover, .parental-control-button:hover, .pt-admin-button:hover, .pt-gated-button:hover, .exit-btn-gameplay {
     -fx-background-color: #13ADED;
     -fx-text-fill: white;
 }
