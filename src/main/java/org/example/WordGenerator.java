@@ -8,21 +8,18 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Loads word resources and returns random standard words, hard words, and boss paragraphs.
+ * Loads word resources and returns random standard words and hard words.
  */
 public class WordGenerator {
 
     private final List<String> standardWords;
-    private final List<String> bossParagraphs;
     private final Random random;
 
-    public WordGenerator(String wordsFilePath, String paragraphsFilePath) {
+    public WordGenerator(String wordsFilePath) {
         this.standardWords = new ArrayList<>();
-        this.bossParagraphs = new ArrayList<>();
         this.random = new Random();
 
         loadLinesFromFile(wordsFilePath, standardWords);
-        loadLinesFromFile(paragraphsFilePath, bossParagraphs);
     }
 
     private void loadLinesFromFile(String resourcePath, List<String> targetList) {
@@ -59,9 +56,5 @@ public class WordGenerator {
         }
 
         return getRandomWord();
-    }
-
-    public String getRandomBossParagraph() {
-        return bossParagraphs.get(random.nextInt(bossParagraphs.size()));
     }
 }

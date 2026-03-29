@@ -80,6 +80,11 @@ public class TypingEngine {
             if (stats != null) {
                 stats.recordIncorrectCharacterTyped();
             }
+            // Reset the target's typing progress back to 0
+            currentTypingTarget.onCorrectCharacterTyped(0);
+            // Break the lock so the player can target something else
+            currentTypingTarget = null;
+
             return TypingResult.INCORRECT;
         }
 
@@ -96,6 +101,13 @@ public class TypingEngine {
         }
 
         return TypingResult.CORRECT_PROGRESS;
+    }
+
+    public void abandonCurrentTarget() {
+        if (currentTypingTarget != null) {
+            currentTypingTarget.onCorrectCharacterTyped(0);
+            currentTypingTarget = null;
+        }
     }
 
     public void clearFocusIfTargetRemoved(TypingTarget target) {

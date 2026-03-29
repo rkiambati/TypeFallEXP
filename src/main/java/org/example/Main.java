@@ -29,13 +29,17 @@ public class Main extends Application {
             } else if (event.getCode() == KeyCode.DIGIT2) {
                 controller.usePowerUpSlot(2);
                 event.consume();
+            } else if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.ESCAPE) {
+                controller.cancelCurrentTarget();
+                event.consume();
             }
         });
 
         scene.setOnKeyTyped(event -> {
             String input = event.getCharacter();
 
-            if (input == null || input.isEmpty()) {
+            // Ignore spaces here so they don't count as wrong letters
+            if (input == null || input.isEmpty() || " ".equals(input)) {
                 return;
             }
 

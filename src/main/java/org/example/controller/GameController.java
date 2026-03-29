@@ -73,6 +73,8 @@ public class GameController {
     private String lastDisplayedPowerUp = "";
     private String lastDisplayedStatus = "";
 
+    private boolean wasBossActive = false; // Add this line
+
 
     private void spawnAsteroid() {
         // Create the Asteroid using a Circle placeholder
@@ -124,7 +126,6 @@ public class GameController {
         }
 
         enemyImageCache = loadImage("/enemy.png");
-        bossImageCache = loadImage("/boss.png");
 
         setupLaser();
 
@@ -209,6 +210,14 @@ public class GameController {
         lastFrameTime = now;
 
         gameSession.update(deltaTime);
+
+        // Check if the boss wave just started
+        boolean isBossActiveNow = gameSession.isBossActive();
+        if (isBossActiveNow && !wasBossActive) {
+            showLevelStartAnimation("MASSIVE WAVE INCOMING!");
+        }
+        wasBossActive = isBossActiveNow;
+
         updateHud();
         syncVisuals();
 
@@ -226,8 +235,10 @@ public class GameController {
 
         if (gameSession.isLevelCleared()) {
             int nextLevel = gameSession.getCurrentLevel() + 1;
-            showStatusFlash("Level Cleared");
+            // Play big animation instead of tiny flash
+            showLevelStartAnimation("WAVE CLEARED!");
             gameSession.startLevel(nextLevel);
+            wasBossActive = false; // Reset for the new level
         }
     }
 
@@ -279,17 +290,22 @@ public class GameController {
             view.container.setTranslateX(target.getX());
             view.container.setTranslateY(target.getY());
 
+            // ALWAYS update text to catch resets from the TypingEngine
+            updateTargetText(view, target);
+
             if (target.getTypedCharacterIndex() > 0) {
                 if (target == activeTarget && target.getTypedCharacterIndex() > lastTypedIndex) {
-                    updateTargetText(view, target);
                     fireLaser(target.getX(), target.getY());
                     lastTypedIndex = target.getTypedCharacterIndex();
                 } else if (target != activeTarget) {
                     activeTarget = target;
                     lastTypedIndex = target.getTypedCharacterIndex();
-                    updateTargetText(view, target);
                     fireLaser(target.getX(), target.getY());
                 }
+            } else if (target == activeTarget && target.getTypedCharacterIndex() == 0) {
+                // If the engine reset the index to 0, clear the local lock
+                activeTarget = null;
+                lastTypedIndex = 0;
             }
         }
 
@@ -339,19 +355,6 @@ public class GameController {
     }
 
     private Node createVisualNodeForTarget(TypingTarget target) {
-        if (target instanceof BossEnemy) {
-            if (bossImageCache != null) {
-                ImageView imageView = new ImageView(bossImageCache);
-                imageView.setFitWidth(150);
-                imageView.setPreserveRatio(true);
-                return imageView;
-            }
-            Text fallback = new Text("BOSS");
-            fallback.setFill(Color.ORANGERED);
-            fallback.setFont(Font.font("System Bold", 28));
-            return fallback;
-        }
-
         if (target instanceof PowerUpDrop powerUpDrop) {
             boolean isClear = powerUpDrop.getPowerUpType() == PowerUpType.SCREEN_CLEAR;
             Text badge = new Text(isClear ? "CLEAR" : "HEAL");
@@ -373,14 +376,11 @@ public class GameController {
         return fallback;
     }
 
+    public void cancelCurrentTarget() {
+        gameSession.abandonCurrentTarget();
+    }
+
     private void styleTextForTarget(TypingTarget target, Text typedText, Text remainingText) {
-        if (target instanceof BossEnemy) {
-            typedText.setStyle("-fx-font-size: 34px; -fx-font-weight: bold;");
-            remainingText.setStyle("-fx-font-size: 34px; -fx-font-weight: bold;");
-            typedText.setFill(Color.LIME);
-            remainingText.setFill(Color.web("#ff4d4d"));
-            return;
-        }
 
         if (target instanceof PowerUpDrop powerUpDrop) {
             boolean isClear = powerUpDrop.getPowerUpType() == PowerUpType.SCREEN_CLEAR;

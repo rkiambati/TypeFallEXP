@@ -13,6 +13,12 @@ public class GameSession {
     private static final double BOSS_INTERVAL_SECONDS = 30.0;
     private static final double PLAYFIELD_HEIGHT = 540;
 
+    private static final double BOSS_WAVE_SPAWN_INTERVAL = 0.5; // Spawns an enemy every half second
+
+    private int bossWaveEnemiesToSpawn;
+    private int bossWaveEnemiesDefeated;
+    private int totalBossWaveEnemies;
+
     private int currentScore;
     private int currentHealth;
     private int currentLevel;
@@ -37,7 +43,7 @@ public class GameSession {
     private final Random random;
 
     public GameSession(int startingLevel) {
-        this.wordGenerator = new WordGenerator("/words.txt", "/paragraphs.txt");
+        this.wordGenerator = new WordGenerator("/words.txt");
         this.currentHealth = DEFAULT_MAXIMUM_HEARTS;
         this.currentScore = 0;
         this.activeTargets = new ArrayList<>();
@@ -52,14 +58,17 @@ public class GameSession {
         this.currentLevel = level;
         this.activeTargets.clear();
         this.enemiesDefeatedThisLevel = 0;
-        this.enemiesRequiredForBoss = 10 + (level * 5);
+        this.enemiesRequiredForBoss = 5 + (level * 5);
+
+        this.totalBossWaveEnemies = 20 + (level * 10); // Increases wave size each level
+        this.bossWaveEnemiesToSpawn = 0;
+        this.bossWaveEnemiesDefeated = 0;
 
         this.bossActive = false;
         this.bossDefeated = false;
 
         this.enemySpawnTimer = STANDARD_ENEMY_SPAWN_INTERVAL;
         this.powerUpSpawnTimer = POWER_UP_SPAWN_INTERVAL;
-        this.bossTimer = BOSS_INTERVAL_SECONDS;
 
         typingEngine.resetFocus();
     }
@@ -68,7 +77,6 @@ public class GameSession {
         if (isGameOver() || isLevelCleared()) return;
 
         runStatistics.addElapsedTime(deltaTimeSeconds);
-        updateBossTimer(deltaTimeSeconds);
         spawnTargets(deltaTimeSeconds);
         updateTargetMovement(deltaTimeSeconds);
         resolveCompletedTargets();
@@ -84,14 +92,17 @@ public class GameSession {
     }
 
     private void spawnTargets(double deltaTimeSeconds) {
-        if (bossActive) return;
-
         enemySpawnTimer -= deltaTimeSeconds;
+
         if (enemySpawnTimer <= 0.0) {
-            enemySpawnTimer = STANDARD_ENEMY_SPAWN_INTERVAL;
-            StandardEnemy newEnemy = new StandardEnemy(wordGenerator.getRandomWord());
-            newEnemy.setX(random.nextDouble() * 1100.0);
-            activeTargets.add(newEnemy);
+            if (bossActive && bossWaveEnemiesToSpawn > 0) {
+                enemySpawnTimer = BOSS_WAVE_SPAWN_INTERVAL;
+                bossWaveEnemiesToSpawn--;
+                spawnStandardEnemy();
+            } else if (!bossActive) {
+                enemySpawnTimer = STANDARD_ENEMY_SPAWN_INTERVAL;
+                spawnStandardEnemy();
+            }
         }
 
         powerUpSpawnTimer -= deltaTimeSeconds;
@@ -99,6 +110,12 @@ public class GameSession {
             powerUpSpawnTimer = POWER_UP_SPAWN_INTERVAL;
             spawnPowerUpDrop();
         }
+    }
+
+    private void spawnStandardEnemy() {
+        StandardEnemy newEnemy = new StandardEnemy(wordGenerator.getRandomWord());
+        newEnemy.setX(random.nextDouble() * 1100.0);
+        activeTargets.add(newEnemy);
     }
 
     private void spawnPowerUpDrop() {
@@ -113,16 +130,15 @@ public class GameSession {
             TypingTarget target = activeTargets.get(i);
 
             if (target instanceof FallingEntity fallingEntity) {
-                if (!(target instanceof BossEnemy)) {
-                    fallingEntity.moveDown(deltaTimeSeconds);
+                fallingEntity.moveDown(deltaTimeSeconds);
 
-                    if (fallingEntity.hasReachedBottom(PLAYFIELD_HEIGHT)) {
-                        if (target instanceof Enemy enemy) {
-                            currentHealth -= enemy.getDamageToPlayerHearts();
-                        }
-                        typingEngine.clearFocusIfTargetRemoved(target);
-                        activeTargets.remove(i);
+                if (fallingEntity.hasReachedBottom(PLAYFIELD_HEIGHT)) {
+                    if (target instanceof Enemy enemy) {
+                        currentHealth -= enemy.getDamageToPlayerHearts();
+                        processEnemyRemoval(); // Track the enemy even if it hit us
                     }
+                    typingEngine.clearFocusIfTargetRemoved(target);
+                    activeTargets.remove(i);
                 }
             }
         }
@@ -140,13 +156,7 @@ public class GameSession {
 
                 if (target instanceof Enemy defeatedEnemy) {
                     currentScore += defeatedEnemy.getPointsAwardedOnDefeat();
-
-                    if (defeatedEnemy instanceof BossEnemy) {
-                        bossDefeated = true;
-                    } else {
-                        enemiesDefeatedThisLevel++;
-                        checkAndSpawnBoss();
-                    }
+                    processEnemyRemoval(); // Track the defeated enemy
                 } else if (target instanceof PowerUpDrop powerUpDrop) {
                     grantPowerUp(powerUpDrop.getPowerUpType());
                 }
@@ -158,15 +168,30 @@ public class GameSession {
         if (enemiesDefeatedThisLevel < enemiesRequiredForBoss || bossActive) return;
 
         bossActive = true;
-        activeTargets.clear();
-        typingEngine.resetFocus();
-        bossTimer = BOSS_INTERVAL_SECONDS;
+        bossWaveEnemiesToSpawn = totalBossWaveEnemies;
+        bossWaveEnemiesDefeated = 0;
 
-        BossEnemy boss = new BossEnemy(wordGenerator.getRandomBossParagraph(), bossTimer);
-        boss.setX(120.0);
-        boss.setY(80.0);
-        activeTargets.add(boss);
+        // Optional: clear standard enemies before the wave hits, or leave them for extra chaos
+        // activeTargets.clear();
+        typingEngine.resetFocus();
     }
+
+    private void processEnemyRemoval() {
+        if (bossActive) {
+            bossWaveEnemiesDefeated++;
+            if (bossWaveEnemiesDefeated >= totalBossWaveEnemies && bossWaveEnemiesToSpawn == 0) {
+                bossDefeated = true;
+            }
+        } else {
+            enemiesDefeatedThisLevel++;
+            checkAndSpawnBoss();
+        }
+    }
+
+    public void abandonCurrentTarget() {
+        typingEngine.abandonCurrentTarget();
+    }
+
 
     public void handleTypedCharacter(char input) {
         if (isGameOver() || isLevelCleared()) return;
