@@ -38,7 +38,7 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Label fx:id="errorStatus" layoutX="175.0" layoutY="244.0" prefHeight="17.0" prefWidth="210.0" textFill="RED">
+            <Label fx:id="errorStatus" layoutX="516.0" layoutY="403.0" prefHeight="17.0" prefWidth="210.0" textFill="RED">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
