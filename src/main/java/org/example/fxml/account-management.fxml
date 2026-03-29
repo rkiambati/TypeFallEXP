@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane id="root-pane" fx:id="backgroundPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="434.0" prefWidth="702.0" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.AccountManagementController">
+   <top>
+      <AnchorPane prefHeight="47.0" prefWidth="768.0" style="-fx-border-color: grey;" BorderPane.alignment="CENTER">
+         <children>
+            <Text fill="WHITE" layoutX="10.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Parental Account Management" wrappingWidth="280.10092544555664">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Text>
+         </children>
+      </AnchorPane>
+   </top>
+   <left>
+      <BorderPane prefHeight="456.0" prefWidth="329.0" BorderPane.alignment="CENTER">
+         <top>
+            <AnchorPane prefHeight="391.0" prefWidth="329.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="backToPTControlCentre" layoutX="17.0" layoutY="287.0" mnemonicParsing="false" onAction="#handleBackToPTControlCentre" prefHeight="32.0" prefWidth="298.0" styleClass="pt-nav-button" text="Back to Parental Control Center">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="resetUserPasswordPT" layoutX="19.0" layoutY="53.0" mnemonicParsing="false" onAction="#handleResetUserPasswordPT" prefHeight="83.0" prefWidth="298.0" styleClass="pt-gated-button" text="Reset User Password">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="17.0" layoutY="157.0" mnemonicParsing="false" onAction="#handleCreateNewUser" prefHeight="83.0" prefWidth="298.0" styleClass="pt-admin-button" text="Create New user">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Button>
+               </children>
+            </AnchorPane>
+         </top>
+      </BorderPane>
+   </left>
+   <right>
+      <AnchorPane prefHeight="383.0" prefWidth="363.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView fx:id="userTableAM" layoutX="37.0" layoutY="47.0" prefHeight="271.0" prefWidth="311.0" style="-fx-background-color: black; -fx-border-color: white;" styleClass="pt-table">
+              <columns>
+                <TableColumn fx:id="usernameColumnAM" prefWidth="133.0" text="Username" />
+                <TableColumn fx:id="roleColumnAM" prefWidth="147.0" text="User Type" />
+              </columns>
+            </TableView>
+            <ScrollBar layoutX="3.0" layoutY="47.0" orientation="VERTICAL" prefHeight="270.0" prefWidth="24.0" style="-fx-background-color: black; -fx-border-color: white;" />
+            <Text fill="WHITE" layoutX="35.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Users:">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Text>
+            <Button fx:id="selectPlayerAM" layoutX="74.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleSelectPlayerAM" prefHeight="31.0" prefWidth="238.0" styleClass="pt-gated-button" text="Select Player">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </right>
+</BorderPane>

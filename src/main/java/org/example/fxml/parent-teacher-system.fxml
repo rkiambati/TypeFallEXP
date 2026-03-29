@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane fx:id="backgroundPane" id="root-pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../../css/app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.ParentTeacherControlCentreController">   <right>
+      <AnchorPane prefHeight="669.0" prefWidth="765.0" BorderPane.alignment="CENTER">
+         <children>
+            <ScrollBar layoutX="8.0" layoutY="16.0" orientation="VERTICAL" prefHeight="577.0" prefWidth="27.0" style="-fx-background-color: black; -fx-border-color: white;" />
+            <TableView fx:id="playerTablePT" layoutX="46.0" layoutY="15.0" prefHeight="578.0" prefWidth="706.0" style="-fx-background-color: black; -fx-border-color: white;">
+              <columns>
+                <TableColumn fx:id="usernameColumnPT" prefWidth="256.7014465332031" text="Username" />
+                <TableColumn fx:id="roleColumnPT" prefWidth="290.29864501953125" text="User Type" />
+              </columns>
+            </TableView>
+            <Button fx:id="selectPlayerBtnPT" layoutX="8.0" layoutY="611.0" mnemonicParsing="false" onAction="#handleSelectPlayerPT" prefHeight="40.0" prefWidth="339.0" styleClass="pt-gated-button" text="Select Player">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+            <Text fill="WHITE" layoutX="424.0" layoutY="637.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sort Options:">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Text>
+            <ComboBox fx:id="sortDropDownBtn" layoutX="573.0" layoutY="610.0" onAction="#handleSortChangedPT" prefHeight="40.0" prefWidth="178.0" styleClass="pt-combo-box" />
+         </children>
+      </AnchorPane>
+   </right>
+   <top>
+      <AnchorPane prefHeight="47.0" prefWidth="884.0" style="-fx-border-color: grey;" BorderPane.alignment="CENTER">
+         <children>
+            <Text fill="WHITE" layoutX="14.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Parent/Teacher Control Centre">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Text>
+         </children>
+      </AnchorPane>
+   </top>
+   <left>
+      <AnchorPane prefHeight="669.0" prefWidth="505.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="backToMainMenuPT" layoutX="64.0" layoutY="437.0" mnemonicParsing="false" onAction="#handleBackToMainMenuPT" prefHeight="32.0" prefWidth="387.0" styleClass="pt-nav-button" text="Back to Main Menu">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+            <Button fx:id="accountManagementBtnPT" layoutX="30.0" layoutY="147.0" mnemonicParsing="false" onAction="#handleAccountManagementPT" prefHeight="95.0" prefWidth="460.0" styleClass="pt-admin-button" text="Account Management">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Button>
+            <Button fx:id="playerStatisticsBtnPT" layoutX="29.0" layoutY="274.0" mnemonicParsing="false" onAction="#handlePlayerStatisticsPT" prefHeight="95.0" prefWidth="460.0" styleClass="pt-gated-button" text="View Player Statistics">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </left>
+</BorderPane>

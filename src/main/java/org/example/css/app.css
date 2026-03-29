@@ -1,0 +1,75 @@
+/* Space Theme Background */
+#root-pane {
+    -fx-background-color: linear-gradient(to bottom, #050510, #0a1128);
+    -fx-border-color: grey;
+    -fx-border-width: 2px;
+}
+
+/* --- 1. Base Button Styling (Transparent & Rounded) --- */
+.play-game-button, .high-score-button, .tutorial-button, .parental-control-button, .logout-button,
+.pt-nav-button, .pt-admin-button, .pt-gated-button, .retry-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+
+/* --- 2. Primary Cyan Buttons --- */
+/* (Main Menu, Account Management, Select Player) */
+.play-game-button, .high-score-button, .parental-control-button, .pt-admin-button, .pt-gated-button {
+    -fx-border-color: #13ADED;
+    -fx-text-fill: #13ADED;
+}
+
+.play-game-button:hover, .high-score-button:hover, .parental-control-button:hover, .pt-admin-button:hover, .pt-gated-button:hover {
+    -fx-background-color: #13ADED;
+    -fx-text-fill: white;
+}
+
+/* --- 3. Secondary Green Buttons --- */
+/* (Tutorials & Retries) */
+.tutorial-button, .retry-button {
+    -fx-border-color: #57FF1F;
+    -fx-text-fill: #57FF1F;
+}
+
+.tutorial-button:hover, .retry-button:hover {
+    -fx-background-color: #57FF1F;
+    -fx-text-fill: black;
+}
+
+/* --- 4. Warning / Back Red Buttons --- */
+/* (Logout & Back to Main Menu) */
+.logout-button, .pt-nav-button {
+    -fx-border-color: #DE0909;
+    -fx-text-fill: #DE0909;
+}
+
+.logout-button:hover, .pt-nav-button:hover {
+    -fx-background-color: #DE0909;
+    -fx-text-fill: white;
+}
+
+/* --- 5. Disabled State for Gated Buttons --- */
+/* (Makes the Select Player button look "offline" until clicked) */
+.pt-gated-button:disabled {
+    -fx-border-color: #3a4a6b;
+    -fx-text-fill: #556b99;
+    -fx-background-color: transparent;
+    -fx-cursor: default;
+}
+
+/* --- 6. Combo Box Styling --- */
+/* (Cleans up the Sort dropdown so it's not a white box) */
+.pt-combo-box {
+    -fx-background-color: transparent;
+    -fx-border-color: #13ADED;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+}
+
+.pt-combo-box .list-cell {
+    -fx-background-color: #0a1128;
+    -fx-text-fill: white;
+}
