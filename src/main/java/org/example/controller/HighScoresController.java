@@ -40,7 +40,7 @@ public class HighScoresController {
 
     private final ObservableList<HighScoreRow> highScoreRows = FXCollections.observableArrayList();
 
-    private final Random random = new Random(); // Added for the asteroids
+    private final Random random = new Random();
 
 
     @FXML

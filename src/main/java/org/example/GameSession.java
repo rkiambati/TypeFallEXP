@@ -135,7 +135,7 @@ public class GameSession {
                 if (fallingEntity.hasReachedBottom(PLAYFIELD_HEIGHT)) {
                     if (target instanceof Enemy enemy) {
                         currentHealth -= enemy.getDamageToPlayerHearts();
-                        processEnemyRemoval(); // Track the enemy even if it hit us
+                        processEnemyRemoval(); // Track the enemy even if it hit the player
                     }
                     typingEngine.clearFocusIfTargetRemoved(target);
                     activeTargets.remove(i);
@@ -171,8 +171,6 @@ public class GameSession {
         bossWaveEnemiesToSpawn = totalBossWaveEnemies;
         bossWaveEnemiesDefeated = 0;
 
-        // Optional: clear standard enemies before the wave hits, or leave them for extra chaos
-        // activeTargets.clear();
         typingEngine.resetFocus();
     }
 
@@ -223,10 +221,8 @@ public class GameSession {
                 typingEngine.clearFocusIfTargetRemoved(target);
                 activeTargets.remove(i);
 
-                // Count the removal so the boss wave can still progress
                 processEnemyRemoval();
 
-                // Optional: award points for enemies cleared by the power-up
                 currentScore += enemy.getPointsAwardedOnDefeat();
             }
         }

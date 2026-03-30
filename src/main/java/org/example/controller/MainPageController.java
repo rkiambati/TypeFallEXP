@@ -24,7 +24,7 @@ public class MainPageController {
     @FXML
     private Button parentalControlButton;
 
-    private final Random random = new Random(); // Added for the asteroids
+    private final Random random = new Random();
 
 
     @FXML
@@ -77,14 +77,13 @@ public class MainPageController {
         // Read the currently logged-in account from session
         Account currentAccount = SessionManager.getCurrentAccount();
 
-        // Basic safety check
         if (currentAccount == null) {
             showInfo("No active session found. Please log in again.");
             SceneManager.switchScene(event, "/org/example/fxml/login-view.fxml", "TypeFall - Login");
             return;
         }
 
-        // Only allow admin accounts into parent/teacher controls for now
+        // Only allow admin accounts into parent/teacher controls
         if (!currentAccount.isAdmin()) {
             showInfo("Access denied. Only the admin account can access parental controls right now.");
             return;
@@ -104,13 +103,6 @@ public class MainPageController {
         SceneManager.switchScene(event, "/org/example/fxml/login-view.fxml", "TypeFall - Login");
     }
 
-    /**
-     * Small helper to show simple informational popups.
-     *
-     * Why this exists:
-     * - Keeps alert code out of the button handlers
-     * - Makes the controller easier to read
-     */
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("TypeFall");

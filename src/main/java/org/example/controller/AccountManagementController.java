@@ -83,12 +83,11 @@ public class AccountManagementController {
         asteroid.setFill(Color.web("#8892b0"));
         asteroid.setOpacity(random.nextDouble() * 0.5 + 0.3);
 
-        // Set Starting Position (Off-screen to the left)
+        // Set Starting Position
         double startY = random.nextDouble() * 720;
         asteroid.setTranslateX(-50);
         asteroid.setTranslateY(startY);
 
-        // Add to the background pane and push to the very back
         backgroundPane.getChildren().add(asteroid);
         asteroid.toBack();
 
@@ -96,7 +95,6 @@ public class AccountManagementController {
         double durationSeconds = random.nextDouble() * 25 + 15; // 15 to 40 seconds
         TranslateTransition transition = new TranslateTransition(Duration.seconds(durationSeconds), asteroid);
 
-        // Move it across the 1280px screen
         transition.setByX(1350);
         transition.setInterpolator(Interpolator.LINEAR);
         transition.setCycleCount(TranslateTransition.INDEFINITE);

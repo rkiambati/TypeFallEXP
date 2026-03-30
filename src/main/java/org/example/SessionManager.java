@@ -4,13 +4,12 @@ package org.example;
 /**
  * Stores application session data for the currently logged-in user.
  *
- * Why this class exists:
  * - After login succeeds, the app needs to remember who is logged in
  * - Main page and later screens can read the current account from here
  */
 public final class SessionManager {
 
-    // Static reference to current logged-in user
+    // Reference to current logged-in user
     private static Account currentAccount;
 
     /**
@@ -40,7 +39,6 @@ public final class SessionManager {
     /**
      * Clears the current session.
      *
-     * Why this exists:
      * - Needed for logout
      * - Also useful before a new login attempt
      */

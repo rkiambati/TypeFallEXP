@@ -96,12 +96,10 @@ public class GameController {
         asteroid.setOpacity(random.nextDouble() * 0.5 + 0.3);
 
         // Set Starting Position:
-        // Random X across the 1280px width, Y just off-screen at the bottom (e.g., 750)
         double startX = random.nextDouble() * 1280;
         asteroid.setTranslateX(startX);
         asteroid.setTranslateY(750); // Starts below the screen
 
-        // Add to the background pane and push to the very back
         backgroundPane.getChildren().add(asteroid);
         asteroid.toBack();
 
@@ -109,11 +107,8 @@ public class GameController {
         double durationSeconds = random.nextDouble() * 25 + 15; // 15 to 40 seconds
         TranslateTransition transition = new TranslateTransition(Duration.seconds(durationSeconds), asteroid);
 
-        // Move it UP across the screen.
-        // Moving from Y=750 to Y=-50 requires a change of -800 pixels.
         transition.setByY(-800);
 
-        // Ensure we don't move it on the X axis anymore
         transition.setByX(0);
 
         // delay between each asteroid
@@ -139,7 +134,6 @@ public class GameController {
 
         setupLaser();
 
-        // Prevent layout thrashing when things leave the visible area
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(gamePane.widthProperty());
         clip.heightProperty().bind(gamePane.heightProperty());
@@ -150,7 +144,6 @@ public class GameController {
         setupPlayerShip();
         showLevelStartAnimation("Type the enemy words before they hit you");
 
-        // Make sure gameplay scene always re-registers keys
         gamePane.setFocusTraversable(true);
         gamePane.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -170,7 +163,6 @@ public class GameController {
         playerShip.setPreserveRatio(true);
 
 
-        // Use these instead:
         playerShip.setTranslateX(580);
         playerShip.setTranslateY(500);
         gamePane.getChildren().add(playerShip);
@@ -255,7 +247,6 @@ public class GameController {
 
         if (gameSession.isLevelCleared()) {
             int nextLevel = gameSession.getCurrentLevel() + 1;
-            // Play big animation instead of tiny flash
             showLevelStartAnimation("WAVE CLEARED!");
             gameSession.startLevel(nextLevel);
             wasBossActive = false; // Reset for the new level
@@ -293,11 +284,9 @@ public class GameController {
         for (TypingTarget target : currentTargets) {
             TargetView view = visualElements.computeIfAbsent(target, this::getOrCreateTargetView);
 
-            // Bypass layout engine, translate directly on GPU
             view.container.setTranslateX(target.getX());
             view.container.setTranslateY(target.getY());
 
-            // ALWAYS update text to catch resets from the TypingEngine
             updateTargetText(view, target);
 
             if (target.getTypedCharacterIndex() > 0) {
@@ -310,7 +299,6 @@ public class GameController {
                     fireLaser(target.getX(), target.getY());
                 }
             } else if (target == activeTarget && target.getTypedCharacterIndex() == 0) {
-                // If the engine reset the index to 0, clear the local lock
                 activeTarget = null;
                 lastTypedIndex = 0;
             }
@@ -421,11 +409,9 @@ public class GameController {
     }
 
     private void fireLaser(double targetX, double targetY) {
-        // Get the translate coordinates to match where the ship actually is
         playerLaser.setStartX(playerShip.getTranslateX() + (playerShip.getFitWidth() / 2));
         playerLaser.setStartY(playerShip.getTranslateY());
 
-        // The target coordinates are also using translate now!
         playerLaser.setEndX(targetX + 20);
         playerLaser.setEndY(targetY + 20);
         playerLaser.setVisible(true);

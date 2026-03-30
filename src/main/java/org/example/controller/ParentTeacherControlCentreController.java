@@ -21,7 +21,7 @@ import java.util.Random;
 
 public class ParentTeacherControlCentreController {
     @FXML
-    private Pane backgroundPane; // Added for the asteroids
+    private Pane backgroundPane;
 
     @FXML
     private Button backToMainMenuPT;
@@ -51,10 +51,9 @@ public class ParentTeacherControlCentreController {
 
     private PlayerRow selectedPlayer;
 
-    // Real backend manager that loads accounts from accounts.json
     private final AccountManager accountManager = new AccountManager();
 
-    private final Random random = new Random(); // Added for the asteroids
+    private final Random random = new Random();
 
 
     @FXML
@@ -149,7 +148,6 @@ public class ParentTeacherControlCentreController {
             return;
         }
 
-        // store selected player somewhere shared if needed.
         SceneManager.switchScene(event,
                 "/org/example/fxml/player-statistics.fxml",
                 "TypeFall - Player Statistics");
@@ -160,18 +158,11 @@ public class ParentTeacherControlCentreController {
         applySort();
     }
 
-    /**
-     * Loads real accounts from AccountManager and converts them into table rows.
-     *
-     * Why we do this conversion:
-     * - TableView works nicely with lightweight row objects
-     * - Keeps UI display structure separate from full Account objects
-     */
+
     private void loadPlayersFromAccounts() {
         playerRows.clear();
 
         for (Account account : accountManager.getAllAccounts()) {
-            // Convert the boolean admin flag into a display label for now
             String role = account.isAdmin() ? "Admin" : "Player";
 
             playerRows.add(new PlayerRow(
@@ -201,8 +192,6 @@ public class ParentTeacherControlCentreController {
 //    private void loadMockPlayers() {
 //        playerRows.clear();
 //
-//        // Temporary mock data so the page works tonight.
-//        // Replace this with real account data later.
 //        playerRows.addAll(
 //                new PlayerRow("alex01", "Student"),
 //                new PlayerRow("brenda22", "Student"),
