@@ -3,5 +3,10 @@
     "username": "admin",
     "password": "admin123",
     "admin": true
+  },
+  {
+    "username": "hi",
+    "password": "123",
+    "admin": false
   }
 ]

@@ -1,18 +1,21 @@
 package org.example.controller;
 
+import java.util.Random;
+
+import org.example.AccountManager;
+import org.example.SceneManager;
+
+import javafx.animation.Interpolator;
+import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import org.example.SceneManager;
-import java.util.Random;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import javafx.animation.Interpolator;
-import javafx.animation.TranslateTransition;
 
 public class CreateNewUserController {
 
@@ -20,13 +23,13 @@ public class CreateNewUserController {
     private Pane backgroundPane;
 
     @FXML
-    private TextField userName;
+    private TextField userNameField;
 
     @FXML
-    private PasswordField password;
+    private PasswordField passwordField;
 
     @FXML
-    private PasswordField passwordVerification;
+    private PasswordField passwordVerificationField;
 
     private final Random random = new Random();
 
@@ -78,31 +81,31 @@ public class CreateNewUserController {
 
     @FXML
     private void handleCancelCU(ActionEvent event) {
-        userName.clear();
-        password.clear();
-        passwordVerification.clear();
+        userNameField.clear();
+        passwordField.clear();
+        passwordVerificationField.clear();
     }
 
     @FXML
     private void handleConfirmCU(ActionEvent event) {
-        String username = userName.getText() == null ? "" : userName.getText().trim();
-        String pw = password.getText() == null ? "" : password.getText();
-        String pwVerify = passwordVerification.getText() == null ? "" : passwordVerification.getText();
+        String userName = userNameField.getText() == null ? "" : userNameField.getText().trim();
+        String password = passwordField.getText() == null ? "" : passwordField.getText();
+        String passwordVerification = passwordVerificationField.getText() == null ? "" : passwordVerificationField.getText();
 
-        if (username.isEmpty() || pw.isEmpty() || pwVerify.isEmpty()) {
+        if (userName.isEmpty() || password.isEmpty() || passwordVerification.isEmpty()) {
             showInfo("All fields are required.");
             return;
         }
 
-        if (!pw.equals(pwVerify)) {
+        if (!password.equals(passwordVerification)) {
             showInfo("Passwords do not match.");
-            password.clear();
-            passwordVerification.clear();
+            passwordField.clear();
+            passwordVerificationField.clear();
             return;
         }
 
-        // Placeholder until backend user creation is implemented
-        showInfo("Validation passed. Backend user creation will be connected next.");
+        AccountManager currAccount = new AccountManager();
+        currAccount.createAccount(userName, password, false);
     }
 
     private void showInfo(String message) {
