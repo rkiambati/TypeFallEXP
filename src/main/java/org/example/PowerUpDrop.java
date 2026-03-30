@@ -1,8 +1,5 @@
 package org.example;
 
-/**
- * A falling typeable target that rewards the player with a power-up when typed.
- */
 public class PowerUpDrop extends FallingEntity implements TypingTarget {
 
     private static final double FALL_SPEED = 95.0;

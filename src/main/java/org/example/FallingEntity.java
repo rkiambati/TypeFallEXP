@@ -1,8 +1,6 @@
 package org.example;
 
-/**
- * Shared base class for anything that falls from the top of the screen.
- */
+
 public abstract class FallingEntity {
 
     protected double xPosition;

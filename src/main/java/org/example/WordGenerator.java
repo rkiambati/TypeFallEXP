@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Loads word resources and returns random standard words and hard words.
- */
+
 public class WordGenerator {
 
     private final List<String> standardWords;
@@ -18,7 +16,6 @@ public class WordGenerator {
     public WordGenerator(String wordsFilePath) {
         this.standardWords = new ArrayList<>();
         this.random = new Random();
-
         loadLinesFromFile(wordsFilePath, standardWords);
     }
 
@@ -37,7 +34,7 @@ public class WordGenerator {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Could not load resource: " + resourcePath);
+            System.err.println("Could not load: " + resourcePath);
             e.printStackTrace();
         }
     }

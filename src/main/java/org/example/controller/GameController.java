@@ -55,7 +55,6 @@ public class GameController {
     @FXML private Text healthText;
     @FXML private Text levelText;
     @FXML private Text powerupText;
-    @FXML private Text statusText;
 
     private final Random random = new Random();
 
@@ -216,10 +215,6 @@ public class GameController {
         } else if (slotNumber == 2) {
             used = gameSession.useHealPowerUp();
         }
-
-        if (used) {
-            showStatusFlash(slotNumber == 1 ? "Screen Cleared" : "+10 Health");
-        }
     }
 
     private void processGameFrame(long now) {
@@ -290,19 +285,6 @@ public class GameController {
             powerupText.setText(currentPowerUpText);
         }
 
-        String currentStatusText = " ";
-        Color currentStatusColor = Color.WHITE;
-
-        if (gameSession.isBossActive()) {
-            currentStatusText = String.format("Boss timer %.0fs", gameSession.getBossTimerRemaining());
-            currentStatusColor = Color.ORANGERED;
-        }
-
-        if (!currentStatusText.equals(lastDisplayedStatus)) {
-            lastDisplayedStatus = currentStatusText;
-            statusText.setText(currentStatusText);
-            statusText.setFill(currentStatusColor);
-        }
     }
 
     private void syncVisuals() {
@@ -451,13 +433,7 @@ public class GameController {
         laserFramesRemaining = 5;
     }
 
-    private void showStatusFlash(String message) {
-        statusText.setText(message);
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), statusText);
-        fade.setFromValue(1.0);
-        fade.setToValue(0.35);
-        fade.play();
-    }
+
 
     private static class TargetView {
         private final VBox container;

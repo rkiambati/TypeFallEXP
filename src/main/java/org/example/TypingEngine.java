@@ -2,9 +2,7 @@ package org.example;
 
 import java.util.List;
 
-/**
- * Handles target locking, auto-switching, and typing logic.
- */
+
 public class TypingEngine {
 
     private TypingTarget currentTypingTarget;
@@ -33,28 +31,31 @@ public class TypingEngine {
                 }
                 return TypingResult.CORRECT_PROGRESS;
             } else {
-                // The character is WRONG for the current word.
-                // Let's check if the player is trying to auto-switch to a new word.
+                // The character is wrong for the current word, check if the player is trying to auto-switch to a new word.
                 TypingTarget newTarget = findBestNewTarget(normalizedChar, activeTargets, currentTypingTarget);
 
                 if (newTarget != null) {
-                    // Successful auto-switch! Reset the old target and lock the new one.
+                    // Switch to new target, reset the old target and lock the new one.
                     currentTypingTarget.onCorrectCharacterTyped(0);
                     currentTypingTarget = newTarget;
                     currentTypingTarget.onCorrectCharacterTyped(1);
 
-                    if (stats != null) stats.recordCorrectCharacterTyped();
+                    if (stats != null) {
+                        stats.recordCorrectCharacterTyped();
+                    }
                     return TypingResult.CORRECT_PROGRESS;
                 } else {
-                    // It is just a normal typo. Record the mistake, but DO NOT drop the lock.
-                    // This allows the player to keep typing the word without starting over.
-                    if (stats != null) stats.recordIncorrectCharacterTyped();
+                    // It is just a normal typo, record the mistake, but dont drop the lock, allow the player
+                    // to keep typing the word without starting over.
+                    if (stats != null) {
+                        stats.recordIncorrectCharacterTyped();
+                    }
                     return TypingResult.INCORRECT;
                 }
             }
         }
 
-        // Scenario 2: We are NOT locked, try to find a new target
+        // Scenario 2: We are not locked onto a target, try to find a new target
         TypingTarget newTarget = findBestNewTarget(normalizedChar, activeTargets, null);
 
         if (newTarget != null) {
@@ -82,7 +83,6 @@ public class TypingEngine {
         for (TypingTarget target : activeTargets) {
             if (target != excludeTarget && target.isTargetActive() && !target.getTargetWord().isEmpty()) {
                 if (Character.toLowerCase(target.getTargetWord().charAt(0)) == firstChar) {
-                    // Prioritize targets closest to the bottom of the screen
                     if (bestMatch == null || target.getY() > lowestY) {
                         bestMatch = target;
                         lowestY = target.getY();

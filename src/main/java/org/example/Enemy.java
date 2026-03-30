@@ -1,8 +1,5 @@
 package org.example;
 
-/**
- * Base enemy type for all hostile typing targets.
- */
 public class Enemy extends FallingEntity implements TypingTarget {
 
     protected String targetWord;

@@ -1,8 +1,5 @@
 package org.example;
 
-/**
- * Standard falling enemy.
- */
 public class StandardEnemy extends Enemy {
 
     private static final double MOVEMENT_SPEED = 120.0;
